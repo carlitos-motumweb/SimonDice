@@ -1,4 +1,4 @@
-# Proyecto NPM
+# SIMON Dice...
 Juego de SIMON DICE, escrito en javascript, utilizando lo aprendido en el curso de platzi
 
 ## Créditos
