@@ -1,13 +1,11 @@
 <html>
 
 <head>
+  <meta charset="utf-8"/>
   <title>Simon Dice</title>
   <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
   <link rel="stylesheet" href="simon.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-  <!-- Custom functions file -->
-  <!-- Sweet Alert Script -->
-  <script src="js/sweetalert.min.js"></script>
+
   <!-- Sweet Alert Styles -->
   <link href="css/sweetalert.css" rel="stylesheet">
 </head>
@@ -47,22 +45,73 @@
       <div class="key" data-key="77">m</div>
     </div>
   </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="js/sweetalert.min.js"></script>
   <script>
-    const niveles = 15
+    const niveles = 3
     let teclas = generarTeclas(niveles)
 
     function siguienteNivel(nivelActual) {
       if (nivelActual == niveles) {
-        return alert('Ganaste')
+        return swal({
+          title: 'Ganaste',
+          type: 'success'
+        })
       }
-      swal({title:`Nivel Actual ${nivelActual}`, text:`Suerte`, timer:3000, showConfirmButtom:false})
+      swal({
+        title: `Nivel Actual ${nivelActual}`,
+        text: `Suerte`,
+        timer: 3000,
+        showCancelButton: false,
+        showConfirmButton: false
+      })
 
-      for(let i=0; i<=nivelActual;i++){
-        setTimeout(function(){activate(teclas[i])},(1000*i) + 3000)
+      for (let i = 0; i <= nivelActual; i++) {
+        setTimeout(function() {
+          activate(teclas[i])
+        }, (1000 * i) + 3000)
+      }
+
+      let indice = 0;
+      let teclaActual = teclas[indice]
+      window.addEventListener('keydown', onkeydown)
+
+      function onkeydown(ev) {
+        if (ev.keyCode == teclaActual) {
+          activate(teclaActual, {
+            success: true
+          })
+          indice++
+          if (indice > nivelActual) {
+            window.removeEventListener('keydown', onkeydown)
+            setTimeout(() => siguienteNivel(indice), 1500)
+          }
+          teclaActual = teclas[indice]
+        } else {
+          activate(ev.keyCode, {
+            fail: true
+          })
+          window.removeEventListener('keydown', onkeydown)
+          swal({
+            title: `Nivel Actual ${nivelActual}`,
+            text: `Lo sentimos, PERDISTE.
+            ¿Jugar nuevamente?`,
+            showCancelButton: true,
+            showConfirmButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText:'Sí',
+            closeOnConfirm: true
+          }, function(resp) {
+            if (resp) {
+              teclas = generarTeclas(niveles)
+              siguienteNivel(0)
+            }
+          })
+        }
       }
     }
 
-    siguienteNivel(4)
+    siguienteNivel(0)
 
     function generarTeclas(niveles) {
       return new Array(niveles).fill(0).map(generarTeclaAleatoria)
